@@ -9,7 +9,8 @@ Key features implemented
 * Cleaning of broken links
 * passing of JSON Messages 
 
+Implemented but untested
+* Node / Worker ( Host / Agent ) archicture 
 
 Yet to be implemented
-* Node / Worker ( Host / Agent ) archicture 
 * Storage interface 
