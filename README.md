@@ -24,9 +24,9 @@ Create a Node of the AutoMPI, and attach an external message handler
 <code>
 node := CreateNode("NodeGUID00001", "192.168.1.20", silentOperation, msgHandler)
 </code>
-Paramaters supplied 
+Parameters supplied 
 GUID of this node
-Local addaress of this node
+Local address of this node
 if this Node is to run in silentOperation (default is false)
 An external message handler to process application messages
 
@@ -57,7 +57,7 @@ After the Node is setup and any static workers are created the primary methods u
 # AutoMPI Messages #
 
 at the core of AutoMPI are messages which act both as command messages but also data.
-Only the DestinationGUID of the message needs to be initlised for a message to be sent. 
+Only the DestinationGUID of the message needs to be initialized for a message to be sent. 
 <code>
 type MapMessage struct {
 	DestinationGUID string
@@ -70,6 +70,6 @@ type MapMessage struct {
 Messages are checked(and passed) in this order when received by a node
 * AutoMPI system message
 * Worker Message
-* Mode Message (Passed to extenal message handler(s))
+* Mode Message (Passed to external message handler(s))
 
 
