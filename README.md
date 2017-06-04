@@ -54,9 +54,20 @@ After the Node is setup and any static workers are created the primary methods u
 * func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {} to receive messages (commands) from other nodes
 
 
-# Message Evalulation apon receiving #
+# AutoMPI Messages #
 
-Messages are checked in this order
+at the core of AutoMPI are messages which act both as command messages but also data.
+Only the DestinationGUID of the message needs to be initlised for a message to be sent. 
+<code>
+type MapMessage struct {
+	DestinationGUID string
+	SourceGUID      string
+	Message         map[string]string
+	Data            []byte
+}
+</code>
+
+Messages are checked(and passed) in this order when received by a node
 * AutoMPI system message
 * Worker Message
 * Mode Message (Passed to extenal message handler(s))
