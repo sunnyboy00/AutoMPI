@@ -22,12 +22,11 @@ Yet to be implemented
 Create a Node of the AutoMPI, and attach an external message handler
 
 <code>
-node := CreateNode("NodeGUID00001", "192.168.1.20", silentOperation, msgHandler)
+node := CreateNode("NodeGUID00001", "192.168.1.20", msgHandler)
 </code>
 Parameters supplied 
 GUID of this node
 Local address of this node
-if this Node is to run in silentOperation (default is false)
 An external message handler to process application messages
 
 More messages can be attached with the attach function.
