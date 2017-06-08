@@ -9,7 +9,7 @@
 ### real-time data processing service platform in Golang
 The purpose of this platform is to process massive real-time data flows through breaking data into atomic collections (Workers). Distributing workers across Nodes to balance workloads and minimising data traffic through passing messages to relavant workers only.
 
-Nodes act as a host for workers and provide an easy to use interface to the cluster. Removing the need for a worker to know where a recipent of a message is in the cluster and how to deliver the message to the destination. 
+Distributed across multiple devices Nodes act as a host for workers and provide an easy to use interface to the cluster. Removing the need for a worker to know where a recipent of a message is in the cluster and how to deliver the message to the destination. 
 
 Features implemented
 * Autodiscovery of local Nodes
@@ -35,13 +35,14 @@ Example workers
 Create a Node of the AutoMPI, and attach an external message handler
 
 ```Go
-node := CreateNode("NodeGUID00001", "192.168.1.20", msgHandler)
+node := CreateNode(
+	// GUID of this node
+	"NodeGUID00001", 
+	// Local address of this node
+	"192.168.1.20", 
+	// An external message handler to process application messages
+	msgHandler)
 ```
-
-Parameters supplied 
-"NodeGUID00001": GUID of this node
-"192.168.1.20": Local address of this node
-msgHandler: An external message handler to process application messages
 
 more message handlers can be attached with the attach function.
 ```Go
