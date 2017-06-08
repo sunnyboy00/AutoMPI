@@ -1,6 +1,10 @@
-# AutoMPI
+![alt text](https://github.com/murrayhenwood/AutoMPI/blob/master/AutoMPI.png)
+![alt text](AutoMPI.png)
 
-Future home of real-time distributed service platform in Golang, Will be updated once the core of the platform has been ported from C#
+# AutoMPI
+# Distributed Service Platform #
+* distributed real-time computation service platform in Golang
+in the process of being ported from C#
 
 
 Key features implemented
