@@ -35,23 +35,22 @@ Create a Node of the AutoMPI, and attach an external message handler
 <code>
 node := CreateNode("NodeGUID00001", "192.168.1.20", msgHandler)
 </code>
+
 Parameters supplied 
 GUID of this node
 Local address of this node
 An external message handler to process application messages
 
 More messages can be attached with the attach function.
+
 <code>
-
 node.AttachExternalMessageHandler(msgHandler)
-
 </code>
 
 Message handler 
+
 <code>
-
 func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {}
-
 </code>
 
 ## Workers 
@@ -59,7 +58,6 @@ func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {}
 Workers follow the IWorker interface 
 
 <code>
-
 type IWorker interface {
 	// Get the guid of this worker
 	GetGUID() string
@@ -74,14 +72,12 @@ type IWorker interface {
 	// get the age of the worker
 	GetAge() string
 }
-
 </code>
 
 Once the Node is running workers can be attached with the attach method
+
 <code>
-
 node.AttachWorker(AutoMPI.CreateWorkerTemplate("TemplateWorker0001"))
-
 </code>
 
 
