@@ -1,5 +1,7 @@
 <div style="text-align:center">
+
 ![alt text](AutoMPI.png)
+
 </div>
 
 # AutoMPI
