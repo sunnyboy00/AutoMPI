@@ -39,18 +39,31 @@ Message handler
 func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {}
 </code>
 
+# Workers #
+
+Workers follow the IWorker interface 
+
+<code>
+type IWorker interface {
+	// Get the guid of this worker
+	GetGUID() string
+	// add a message to this workers queue
+	QueueMessage(MapMessage)
+	// attache the AutoMPI.Node.Send(func(MapMessage)) method to this worker
+	AttachSendMethod(func(MapMessage))
+	// do work, passing the nanoseconds since the last call
+	DoWork()
+	// close the worker
+	Close()
+	// get the age of the worker
+	GetAge() string
+}
+</code>
+
 Once the Node is running workers can be attached with the attach method
 <code>
 node.AttachWorker(AutoMPI.CreateWorkerTemplate("TemplateWorker0001"))
 </code>
-
-
-# Extended how to #
-
-After the Node is setup and any static workers are created the primary methods used are the AutoMPI.Node.Send(MapMessage) and the attached message handler
-
-* AutoMPI.Node.Send(MapMessage) to send messaes (commands) to other nodes
-* func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {} to receive messages (commands) from other nodes
 
 
 # AutoMPI Messages #
@@ -65,6 +78,12 @@ type MapMessage struct {
 	Data            []byte
 }
 </code>
+
+
+After the Node is setup and any static workers are created the primary methods used on a node are the AutoMPI.Node.Send(MapMessage) and any attached message handler(s)
+
+* AutoMPI.Node.Send(MapMessage) to send messaes (commands) to other nodes
+* func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {} to receive messages (commands) from other nodes
 
 Messages are checked(and passed) in this order when received by a node
 * AutoMPI system message
