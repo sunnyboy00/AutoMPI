@@ -50,6 +50,7 @@ func (base *WorkerExampleKeyValueStore) DoWork() {
 			break
 		case "set":
 			base.DataStored[Message.GetValue("key")] = Message.GetData()
+			fmt.Printf("%s - Data stored Key:%s\n",base.GUID, Message.GetValue("key"))
 			break
 		case "delete":
 			_, ok := base.DataStored[Message.GetValue("key")]

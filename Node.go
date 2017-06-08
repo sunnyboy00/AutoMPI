@@ -239,6 +239,7 @@ func (base *Node) createHeartbeatMessage(MyIPEndPoint string) {
 func (base *Node) heartBeatLoop() {
 	for base.heartBeating {
 		base.BoardCaster.Boardcast(base.HeartBeatMessage)
+		base.announceAllAgentsInLocalAgentsAnnouncing()
 		time.Sleep(time.Second * heartBeatInterval)
 	}
 }
@@ -246,10 +247,26 @@ func (base *Node) heartBeatLoop() {
 func (base *Node) attachIncommingLink(TheirGUID string, Link *NodeLink) {
 	base.IncommingLinks[TheirGUID] = Link
 	println("Attached Incoming link: ", base.MyNodeGUID, " <- ", Link.GUIDSource)
+	TemplateMessage := make(map[string]string)
+	TemplateMessage[SystemKeysAutoMPISystemMessage] = SystemKeyDetailsWorkerLocation
+	TemplateMessage[SystemMessageDataPartGUIDNode] = base.MyNodeGUID
+
+	for key := range base.LocalWorkersLocation {
+		TemplateMessage[SystemMessageDataPartGUIDWorker] = key
+		base.IncommingLinks[TheirGUID].Send(CreateMapMessage(TemplateMessage))
+	}
 }
 func (base *Node) attachOutgoingLink(TheirGUID string, Link *NodeLink) {
 	base.OutgoingLinks[TheirGUID] = Link
 	println("Attached Outgoing link: ", base.MyNodeGUID, " -> ", Link.GUIDDestination)
+	TemplateMessage := make(map[string]string)
+	TemplateMessage[SystemKeysAutoMPISystemMessage] = SystemKeyDetailsWorkerLocation
+	TemplateMessage[SystemMessageDataPartGUIDNode] = base.MyNodeGUID
+
+	for key := range base.LocalWorkersLocation {
+		TemplateMessage[SystemMessageDataPartGUIDWorker] = key
+		base.OutgoingLinks[TheirGUID].Send(CreateMapMessage(TemplateMessage))
+	}
 }
 
 // IsOutgoingLink is there a link to the Node

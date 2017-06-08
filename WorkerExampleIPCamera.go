@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -56,9 +55,22 @@ func (base *WorkerExampleIPCamera) DoWork() {
 		log.Fatal(err)
 	}
 
-	imgFile, _ := os.Create("image.jpg")
-	imgFile.Write(ImageData)
-	imgFile.Close()
+	// write the image to a file
+	/*
+		imgFile, _ := os.Create("image.jpg")
+		imgFile.Write(ImageData)
+		imgFile.Close()
+	*/
+
+	// send the image to a store
+
+	ReturnMessage := CreateMapMessageEmpty()
+	ReturnMessage.DestinationGUID = "Store0001"
+	ReturnMessage.SourceGUID = base.GUID
+	ReturnMessage.SetData(ImageData)
+	ReturnMessage.SetValue("command", "set")
+	ReturnMessage.SetValue("key", "image-"+time.Now().String())
+	base.Send(ReturnMessage)
 
 	time.Sleep(2 * time.Second)
 }

@@ -81,13 +81,23 @@ func (base *Node) announceAllAgentsInLocalAgentsAnnouncing() {
 	}
 }
 
+func (base *Node) announceAllAgentsInLocalAgentsOnce() {
+	TemplateMessage := make(map[string]string)
+	TemplateMessage[SystemKeysAutoMPISystemMessage] = SystemKeyDetailsWorkerLocation
+	TemplateMessage[SystemMessageDataPartGUIDNode] = base.MyNodeGUID
+
+	for key := range base.LocalWorkersLocation {
+		TemplateMessage[SystemMessageDataPartGUIDWorker] = key
+		base.BoardCaster.Boardcast(CreateMapMessage(TemplateMessage))
+	}
+}
+
 func (base *Node) getHostingNodeOfWorkerBySearchingCollections(WorkerGUID string) (NodeGUID string, IsKnown bool) {
 
 	workerLocation, ok := base.AllWorkersLocation[WorkerGUID]
 	if ok {
 		return workerLocation.parentNodeGUID, true
 	}
-
 	return "", false
 
 }
