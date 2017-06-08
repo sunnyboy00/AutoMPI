@@ -6,10 +6,12 @@
 
 
 # Distributed Service Platform #
-### distributed real-time computation service platform in Golang
-in the process of being ported from C#
+### real-time data processing service platform in Golang
+The purpose of this platform is to process massive real-time data flows through breaking data into atomic collections (Workers). Distributing workers across Nodes to balance workloads and minimising data traffic through passing messages to relavant workers only.
 
-Key features implemented
+Nodes act as a host for workers and provide an easy to use interface to the cluster. Removing the need for a worker to know where a recipent of a message is in the cluster and how to deliver the message to the destination. 
+
+Features implemented
 * Autodiscovery of local Nodes
 * Establish links between Nodes
 * Cleaning of broken links
@@ -32,17 +34,17 @@ Example workers
 
 Create a Node of the AutoMPI, and attach an external message handler
 
-```
+```Go
 node := CreateNode("NodeGUID00001", "192.168.1.20", msgHandler)
 ```
 
 Parameters supplied 
-GUID of this node
-Local address of this node
-An external message handler to process application messages
+"NodeGUID00001": GUID of this node
+"192.168.1.20": Local address of this node
+msgHandler: An external message handler to process application messages
 
-More messages can be attached with the attach function.
-```go
+more message handlers can be attached with the attach function.
+```Go
 node.AttachExternalMessageHandler(msgHandler)
 ```
 
@@ -55,7 +57,7 @@ func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {}
 
 Workers follow the IWorker interface 
 
-```go
+```Go
 type IWorker interface {
 	// Get the guid of this worker
  	GetGUID() string
@@ -71,10 +73,11 @@ type IWorker interface {
  	GetAge() string
 }
 ```
+An Example can be found in the 'WorkerTemplate.go' code file
 
 Once the Node is running workers can be attached with the attach method
 
-```
+```Go
 node.AttachWorker(AutoMPI.CreateWorkerTemplate("TemplateWorker0001"))
 ```
 
@@ -84,7 +87,7 @@ node.AttachWorker(AutoMPI.CreateWorkerTemplate("TemplateWorker0001"))
 at the core of AutoMPI are messages which act both as command messages but also data.
 Only the DestinationGUID of the message needs to be initialized for a message to be sent. 
 
-```
+```Go
 type MapMessage struct {
 	DestinationGUID string
 	SourceGUID      string
