@@ -44,12 +44,16 @@ An external message handler to process application messages
 
 More messages can be attached with the attach function.
 <code>
+
 node.AttachExternalMessageHandler(msgHandler)
+
 </code>
 
 Message handler 
 <code>
+
 func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {}
+
 </code>
 
 ## Workers 
@@ -57,6 +61,7 @@ func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {}
 Workers follow the IWorker interface 
 
 <code>
+
 type IWorker interface {
 	// Get the guid of this worker
 	GetGUID() string
@@ -71,11 +76,14 @@ type IWorker interface {
 	// get the age of the worker
 	GetAge() string
 }
+
 </code>
 
 Once the Node is running workers can be attached with the attach method
 <code>
+
 node.AttachWorker(AutoMPI.CreateWorkerTemplate("TemplateWorker0001"))
+
 </code>
 
 
@@ -84,12 +92,14 @@ node.AttachWorker(AutoMPI.CreateWorkerTemplate("TemplateWorker0001"))
 at the core of AutoMPI are messages which act both as command messages but also data.
 Only the DestinationGUID of the message needs to be initialized for a message to be sent. 
 <code>
+
 type MapMessage struct {
 	DestinationGUID string
 	SourceGUID      string
 	Message         map[string]string
 	Data            []byte
 }
+
 </code>
 
 
