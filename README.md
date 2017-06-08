@@ -8,10 +8,12 @@
 # Distributed Service Platform #
 ### real-time data processing service platform in Golang
 
-The purpose of this platform is to process large amounts of real-time data flows through breaking data into atomic states of data. 
+The purpose of this platform is to process large amounts of real-time data flows by working with data in atomic collections.
+Keeping the state of the atomic collection private, any changes in state is updated to relevant workers on a need to know basis.
 
 Nodes act as a host for workers.
-Workers act as agents for the data
+Workers act as agents for the data.
+The state of data is private to the worker.
 
 Nodes provide an easy to use interface to the cluster to the workers. Removing the need for a worker to know where a recipent of a message is and how to deliver the message to the destination. Distributing workers across Nodes to balance workloads over a spread of devices and minimising data traffic through passing messages to relavant workers only.
 
