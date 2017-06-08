@@ -33,7 +33,7 @@ Features implemented
 Example workers
 * WorkerTemplate
 * WorkerExampleIPCamera
-* WorkerExampleKeyValueStore (ytbi)
+* WorkerExampleKeyValueStore 
 * WorkerExampleScheduler (ytbi)
 
 ## How To use 
