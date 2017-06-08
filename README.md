@@ -16,6 +16,12 @@ Untested
 Yet to be implemented
 * Storage interface 
 
+Example workers
+* WorkerTemplate
+* WorkerExampleIPCamera
+* WorkerExampleKeyValueStore (ytbi)
+* WorkerExampleScheduler (ytbi)
+
 # How To use #
 
 
