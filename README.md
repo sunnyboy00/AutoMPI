@@ -23,12 +23,6 @@ Features implemented
 * passing of JSON Messages 
 * Node / Worker ( Host / Agent ) archicture 
 
-Untested
-* Worker - Worker performance 
-
-Yet to be implemented
-* Storage interface 
-
 Example workers
 * WorkerTemplate
 * WorkerExampleIPCamera
@@ -37,16 +31,13 @@ Example workers
 
 ## How To use 
 
-Create a Node of the AutoMPI, and attach an external message handler
+Create a Node of the AutoMPI
 
 ```Go
 node := CreateNode(
-	// GUID of this node
-	"NodeGUID00001", 
-	// Local address of this node
-	"192.168.1.20", 
-	// An external message handler to process application messages
-	msgHandler)
+	"NodeGUID00001", // GUID of this node
+	"192.168.1.20",  // Local address of this node
+	msgHandler)      // An external message handler
 ```
 
 more message handlers can be attached with the attach function.
@@ -54,7 +45,7 @@ more message handlers can be attached with the attach function.
 node.AttachExternalMessageHandler(msgHandler)
 ```
 
-Message handler 
+Message handler declaration
 ```Go
 func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {}
 ```
@@ -79,7 +70,7 @@ type IWorker interface {
  	GetAge() string
 }
 ```
-An Example can be found in the 'WorkerTemplate.go' code file
+An example worker be found in the 'WorkerTemplate.go' code file
 
 Once the Node is running workers can be attached with the attach method
 
@@ -90,7 +81,7 @@ node.AttachWorker(AutoMPI.CreateWorkerTemplate("TemplateWorker0001"))
 
 ## AutoMPI Messages 
 
-at the core of AutoMPI are messages which act both as command messages but also data.
+at the core of AutoMPI are messages which act both as commands but also to move data.
 Only the DestinationGUID of the message needs to be initialized for a message to be sent. 
 
 ```Go
@@ -103,10 +94,15 @@ type MapMessage struct {
 ```
 
 
-After the Node is setup and any static workers are created the primary methods used on a node are the AutoMPI.Node.Send(MapMessage) and any attached message handler(s)
+The primary methods used on a node are the AutoMPI.Node.Send(MapMessage) and any attached message handler(s)
 
-* AutoMPI.Node.Send(MapMessage) to send messaes (commands) to other nodes
-* func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {} to receive messages (commands) from other nodes
+
+```Go
+AutoMPI.Node.Send(MapMessage) 
+// to send messaes (commands) to other nodes/workers
+func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {} 
+//to receive messages (commands) from other nodes/workers
+```
 
 Messages are checked(and passed) in this order when received by a node
 * AutoMPI system message
