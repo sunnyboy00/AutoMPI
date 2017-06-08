@@ -3,6 +3,7 @@ package AutoMPI
 import (
 	"fmt"
 	"net/http"
+	"runtime"
 )
 
 func (base *Node) stateServe() {
@@ -18,12 +19,17 @@ func (base *Node) stateServe() {
 func (base *Node) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//	fmt.Fprintf(w, "hello, you've hit %s\n", r.URL.Path)
 
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	//log.Printf("\nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\n\n", m.Alloc/1024, m.TotalAlloc/1024, m.Sys/1024, m.NumGC)
+
 	fmt.Fprintf(w, "<!DOCTYPE html><html><head><title>AutiMPI Node: %s</title><meta http-equiv=\"refresh\" content=\"5\"><style>body {font-family: monospace;}</style></head><body></br>\n", base.MyNodeGUID)
 
 	fmt.Fprintf(w, "*****************************   AutoMPI   *****************************</br>\n")
 	fmt.Fprintf(w, "</br>\n")
 	fmt.Fprintf(w, "NodeGUID: %s</br>\n", base.MyNodeGUID)
 	fmt.Fprintf(w, "Communications port: %s</br>\n", base.LocalAddressString+receivingPort)
+	fmt.Fprintf(w, "Alloc = %vKB TotalAlloc = %vKB Sys = %vKB NumGC = %v </br>\n", m.Alloc/1024, m.TotalAlloc/1024, m.Sys/1024, m.NumGC)
 	fmt.Fprintf(w, "</br>\n")
 	fmt.Fprintf(w, "*******************************************************************</br>\n")
 	fmt.Fprintf(w, "</br>\n")
