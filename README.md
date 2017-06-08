@@ -1,11 +1,12 @@
-![alt text](https://github.com/murrayhenwood/AutoMPI/blob/master/AutoMPI.png)
+<div style="text-align:center">
 ![alt text](AutoMPI.png)
+</div>
 
 # AutoMPI
+---
 # Distributed Service Platform #
-* distributed real-time computation service platform in Golang
+### distributed real-time computation service platform in Golang
 in the process of being ported from C#
-
 
 Key features implemented
 * Autodiscovery of local Nodes
@@ -26,8 +27,8 @@ Example workers
 * WorkerExampleKeyValueStore (ytbi)
 * WorkerExampleScheduler (ytbi)
 
-# How To use #
-
+## How To use 
+---
 
 Create a Node of the AutoMPI, and attach an external message handler
 
@@ -49,7 +50,7 @@ Message handler
 func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {}
 </code>
 
-# Workers #
+## Workers 
 
 Workers follow the IWorker interface 
 
@@ -76,7 +77,7 @@ node.AttachWorker(AutoMPI.CreateWorkerTemplate("TemplateWorker0001"))
 </code>
 
 
-# AutoMPI Messages #
+## AutoMPI Messages 
 
 at the core of AutoMPI are messages which act both as command messages but also data.
 Only the DestinationGUID of the message needs to be initialized for a message to be sent. 
