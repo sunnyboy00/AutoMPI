@@ -5,7 +5,8 @@
 </div>
 
 # AutoMPI
----
+
+
 # Distributed Service Platform #
 ### distributed real-time computation service platform in Golang
 in the process of being ported from C#
@@ -30,7 +31,6 @@ Example workers
 * WorkerExampleScheduler (ytbi)
 
 ## How To use 
----
 
 Create a Node of the AutoMPI, and attach an external message handler
 
