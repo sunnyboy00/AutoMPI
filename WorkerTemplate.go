@@ -1,7 +1,6 @@
 package AutoMPI
 
 import (
-	"container/list"
 	"fmt"
 	"strconv"
 	"time"
@@ -11,7 +10,7 @@ import (
 type WorkerTemplate struct {
 	GUID        string
 	CreatedAt   time.Time
-	MessageList list.List
+	MessageList []MapMessage
 	Send        func(MapMessage)
 	LastDidWork time.Time
 }
@@ -22,6 +21,7 @@ func CreateWorkerTemplate(workerGUID string) IWorker {
 	worker.GUID = workerGUID
 	worker.CreatedAt = time.Now()
 	worker.LastDidWork = time.Now()
+	worker.MessageList = make([]MapMessage, 0)
 	return worker
 }
 
@@ -48,16 +48,17 @@ func (base *WorkerTemplate) AttachSendMethod(parentsSendFunction func(MapMessage
 
 // QueueMessage Queue messge for the worker
 func (base *WorkerTemplate) QueueMessage(Message MapMessage) {
-	base.MessageList.PushBack(Message)
+	base.MessageList = append(base.MessageList, Message)
 }
 
 // DoWork do the work of the worker
 func (base *WorkerTemplate) DoWork() {
 
-	for base.MessageList.Len() > 0 {
-		Message := base.MessageList.Front()
-		base.MessageList.Remove(Message)
+	for len(base.MessageList) > 0 {
+		Message := base.MessageList[0]
+		base.MessageList = base.MessageList[1:]
 
+		Message.DestinationGUID = ""
 		// Process Message
 	}
 	//	fmt.Println(base.GUID, " - WorkDone")

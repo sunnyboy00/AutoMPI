@@ -1,7 +1,6 @@
 package AutoMPI
 
 import (
-	"container/list"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -18,7 +17,7 @@ import (
 type WorkerExampleIPCamera struct {
 	GUID        string
 	CreatedAt   time.Time
-	MessageList list.List
+	MessageList []MapMessage
 	Send        func(MapMessage)
 	LastDidWork time.Time
 	sourceURL   string
@@ -31,15 +30,18 @@ func CreateWorkerExampleIPCamera(workerGUID string, sourceURL string) IWorker {
 	worker.sourceURL = sourceURL
 	worker.CreatedAt = time.Now()
 	worker.LastDidWork = time.Now()
+	worker.MessageList = make([]MapMessage, 0)
 	return worker
 }
 
 // DoWork do the work of the worker
 func (base *WorkerExampleIPCamera) DoWork() {
 
-	for base.MessageList.Len() > 0 {
-		Message := base.MessageList.Front()
-		base.MessageList.Remove(Message)
+	for len(base.MessageList) > 0 {
+		Message := base.MessageList[0]
+		base.MessageList = base.MessageList[1:]
+
+		Message.DestinationGUID = ""
 
 		// Process Message
 	}
@@ -53,17 +55,6 @@ func (base *WorkerExampleIPCamera) DoWork() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	/*
-		reader := bytes.NewReader(ImageData)
-
-			var Texture image.Image
-			Texture, _, err = image.Decode(reader)
-			if err != nil {
-				log.Fatal(err)
-			}
-	*/
-
-	//Texture.
 
 	imgFile, _ := os.Create("image.jpg")
 	imgFile.Write(ImageData)
@@ -89,7 +80,7 @@ func (base *WorkerExampleIPCamera) AttachSendMethod(parentsSendFunction func(Map
 
 // QueueMessage Queue messge for the worker
 func (base *WorkerExampleIPCamera) QueueMessage(Message MapMessage) {
-	base.MessageList.PushBack(Message)
+	base.MessageList = append(base.MessageList, Message)
 }
 
 // Close the Worker
