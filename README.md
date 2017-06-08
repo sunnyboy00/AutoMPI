@@ -42,12 +42,12 @@ Local address of this node
 An external message handler to process application messages
 
 More messages can be attached with the attach function.
-```
+```go
 node.AttachExternalMessageHandler(msgHandler)
 ```
 
 Message handler 
-```
+```Go
 func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {}
 ```
 
@@ -55,7 +55,7 @@ func msgHandler(Message AutoMPI.MapMessage, node *AutoMPI.Node) {}
 
 Workers follow the IWorker interface 
 
-```
+```go
 type IWorker interface {
 	// Get the guid of this worker
  	GetGUID() string
