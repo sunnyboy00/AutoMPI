@@ -16,6 +16,13 @@ The purpose of this platform is to process large amounts of real-time data flows
 
 Nodes provide an easy to use interface to the cluster to the workers. Removing the need for a worker to know where a recipent of a message is and how to deliver the message to the destination. Distributing workers across Nodes to balance workloads over a spread of devices and minimising data traffic through passing messages to relavant workers only.
 
+The greater application is essentially defined by the Workers
+
+Inside the DoWork() method the worker process any messages that it has queued and then the internal workload. New data for a worker could delivered to it internally through a message or the worker could retrieve it from an external store. When the worker is finished with a data set then it could either be posted back as a message or back to an external store
+
+In this model there is essentially 2 options for when data is to be picked up to be processed, either on delivery of a message or periodically in the DoWork() method. In the case of the ExampleWorkerIPCamera, its 'work' is to retrieve an image from an IP camera. This is done within the load of the DoWork() method, but any task could be the workload of the DoWork() method.
+
+
 Features implemented
 * Autodiscovery of local Nodes
 * Establish links between Nodes
