@@ -86,6 +86,7 @@ func CreateNode(
 
 	base.WorkersWorking = true
 	go base.workerWorkLoop()
+	go base.workerProcessMessagesLoop()
 	fmt.Println("Workers gorutine started")
 
 	go base.stateServe()

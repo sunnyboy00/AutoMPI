@@ -6,9 +6,11 @@ type IWorker interface {
 	GetGUID() string
 	// add a message to this workers queue
 	QueueMessage(MapMessage)
+	// process all queued messsages
+	ProcessMessages()
 	// attache the AutoMPI.Node.Send(func(MapMessage)) method to this worker
 	AttachSendMethod(func(MapMessage))
-	// do work, passing the nanoseconds since the last call
+	// do work
 	DoWork()
 	// close the worker
 	Close()

@@ -19,6 +19,17 @@ func (base *Node) workerWorkLoop() {
 		}
 	}
 }
+func (base *Node) workerProcessMessagesLoop() {
+	for {
+		if len(base.workers) > 0 {
+			for _, value := range base.workers {
+				value.ProcessMessages()
+			}
+		} else {
+			time.Sleep(secondsToSleepIfNoWorkers * time.Second)
+		}
+	}
+}
 
 // AttachWorker to the node
 // AttachSendMethod to enable Sending of messages

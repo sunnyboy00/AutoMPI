@@ -27,8 +27,8 @@ func CreateWorkerExampleKeyValueStore(workerGUID string) IWorker {
 	return worker
 }
 
-// DoWork do the work of the worker
-func (base *WorkerExampleKeyValueStore) DoWork() {
+// ProcessMessages process all messages for this worker
+func (base *WorkerExampleKeyValueStore) ProcessMessages() {
 
 	for len(base.MessageList) > 0 {
 		Message := base.MessageList[0]
@@ -50,7 +50,7 @@ func (base *WorkerExampleKeyValueStore) DoWork() {
 			break
 		case "set":
 			base.DataStored[Message.GetValue("key")] = Message.GetData()
-			fmt.Printf("%s - Data stored Key:%s\n",base.GUID, Message.GetValue("key"))
+			fmt.Printf("%s - Data stored Key:%s\n", base.GUID, Message.GetValue("key"))
 			break
 		case "delete":
 			_, ok := base.DataStored[Message.GetValue("key")]
@@ -62,6 +62,11 @@ func (base *WorkerExampleKeyValueStore) DoWork() {
 			break
 		}
 	}
+}
+
+// DoWork do the work of the worker
+func (base *WorkerExampleKeyValueStore) DoWork() {
+
 	//	fmt.Println(base.GUID, " - WorkDone")
 	time.Sleep(50 * time.Millisecond)
 }

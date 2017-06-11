@@ -33,18 +33,18 @@ func CreateWorkerExampleIPCamera(workerGUID string, sourceURL string) IWorker {
 	return worker
 }
 
-// DoWork do the work of the worker
-func (base *WorkerExampleIPCamera) DoWork() {
-
+// ProcessMessages process all messages for this worker
+func (base *WorkerExampleIPCamera) ProcessMessages() {
 	for len(base.MessageList) > 0 {
 		Message := base.MessageList[0]
 		base.MessageList = base.MessageList[1:]
-
 		Message.DestinationGUID = ""
-
 		// Process Message
 	}
+}
 
+// DoWork do the work of the worker
+func (base *WorkerExampleIPCamera) DoWork() {
 	res, err := http.Get(base.sourceURL)
 	if err != nil {
 		log.Fatal(err)
