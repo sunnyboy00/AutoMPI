@@ -51,17 +51,19 @@ func (base *WorkerTemplate) QueueMessage(Message MapMessage) {
 	base.MessageList = append(base.MessageList, Message)
 }
 
-// DoWork do the work of the worker
-func (base *WorkerTemplate) DoWork() {
-
+// ProcessMessages process all messages for this worker
+func (base *WorkerTemplate) ProcessMessages() {
 	for len(base.MessageList) > 0 {
 		Message := base.MessageList[0]
 		base.MessageList = base.MessageList[1:]
-
 		Message.DestinationGUID = ""
 		// Process Message
 	}
-	//	fmt.Println(base.GUID, " - WorkDone")
+}
+
+// DoWork do the work of the worker
+func (base *WorkerTemplate) DoWork() {
+
 	time.Sleep(50 * time.Millisecond)
 }
 
