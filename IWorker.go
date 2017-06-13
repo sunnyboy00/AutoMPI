@@ -4,6 +4,8 @@ package AutoMPI
 type IWorker interface {
 	// Get the guid of this worker
 	GetGUID() string
+	// Get the group of this worker
+	GetGroup() string
 	// add a message to this workers queue
 	QueueMessage(MapMessage)
 	// process all queued messsages
