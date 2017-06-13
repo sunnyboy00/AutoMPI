@@ -87,11 +87,10 @@ func CreateNode(
 	base.WorkersWorking = true
 	go base.workerWorkLoop()
 	go base.workerProcessMessagesLoop()
-	fmt.Printf("Workers goroutine(s) started . . . \n")
+	fmt.Println("Workers gorutine started")
 
 	go base.stateServe()
-	fmt.Printf("Node state server started . . . \n")
-	fmt.Printf("\n\n")
+
 	return base
 }
 
@@ -178,20 +177,6 @@ func (base *Node) Send(Message MapMessage) {
 	switch {
 	case Message.DestinationGUID == "all":
 		base.BoardCaster.Boardcast(Message)
-		break
-	case Message.DestinationGUID == "Group":
-		for _, Value := range base.AllWorkersLocation {
-			if Message.DestinationGroup == Value.Group {
-				Message.DestinationGUID = Value.GUID
-				parentNode, IsWorkerAndKnowsLocation := base.getHostingNodeOfWorkerBySearchingCollections(Message.DestinationGUID) // test as Worker location
-				if IsWorkerAndKnowsLocation {
-					link, ok := base.OutgoingLinks[parentNode]
-					if ok {
-						link.Send(Message)
-					}
-				}
-			}
-		}
 		break
 	case base.isALocalWorker(Message.DestinationGUID):
 		base.workers[Message.DestinationGUID].QueueMessage(Message)
