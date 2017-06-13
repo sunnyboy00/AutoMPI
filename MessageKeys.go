@@ -17,6 +17,8 @@ const (
 	SystemKeyDetailsWhereIsThisAgent = "AutoMPI_SKD_WhereIsThisAgent"
 	// SystemMessageDataPartGUIDWorker details
 	SystemMessageDataPartGUIDWorker = "AutoMPI_SMDP_GUID_Worker"
+	// SystemMessageDataPartGroupWorker details
+	SystemMessageDataPartGroupWorker = "AutoMPI_SMDP_Group_Worker"
 	// SystemMessageDataPartGUIDNode details
 	SystemMessageDataPartGUIDNode = "AutoMPI_SMDP_GUID_Node"
 	// SystemMessageDataPartHOSTIPEP details

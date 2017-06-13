@@ -15,6 +15,7 @@ import (
 // WorkerExampleIPCamera example worker
 type WorkerExampleIPCamera struct {
 	GUID        string
+	Group       string
 	CreatedAt   time.Time
 	MessageList []MapMessage
 	Send        func(MapMessage)
@@ -26,6 +27,7 @@ type WorkerExampleIPCamera struct {
 func CreateWorkerExampleIPCamera(workerGUID string, sourceURL string) IWorker {
 	worker := new(WorkerExampleIPCamera)
 	worker.GUID = workerGUID
+	worker.Group = ""
 	worker.sourceURL = sourceURL
 	worker.CreatedAt = time.Now()
 	worker.LastDidWork = time.Now()
@@ -78,6 +80,11 @@ func (base *WorkerExampleIPCamera) DoWork() {
 // GetGUID of the worker
 func (base WorkerExampleIPCamera) GetGUID() string {
 	return base.GUID
+}
+
+// GetGroup of the worker
+func (base WorkerExampleIPCamera) GetGroup() string {
+	return base.Group
 }
 
 // GetAge age of fhe link
