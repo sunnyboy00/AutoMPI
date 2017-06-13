@@ -7,10 +7,11 @@ import (
 
 // MapMessage the struct for Messages with Map and []byte
 type MapMessage struct {
-	DestinationGUID string
-	SourceGUID      string
-	Message         map[string]string
-	Data            []byte
+	DestinationGUID  string
+	DestinationGroup string
+	SourceGUID       string
+	Message          map[string]string
+	Data             []byte
 }
 
 // CreateMapMessageEmpty create an empty MapMessage

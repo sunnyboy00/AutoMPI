@@ -9,6 +9,7 @@ import (
 // WorkerTemplate template worker
 type WorkerTemplate struct {
 	GUID        string
+	Group       string
 	CreatedAt   time.Time
 	MessageList []MapMessage
 	Send        func(MapMessage)
@@ -19,6 +20,7 @@ type WorkerTemplate struct {
 func CreateWorkerTemplate(workerGUID string) IWorker {
 	worker := new(WorkerTemplate)
 	worker.GUID = workerGUID
+	worker.Group = ""
 	worker.CreatedAt = time.Now()
 	worker.LastDidWork = time.Now()
 	worker.MessageList = make([]MapMessage, 0)
@@ -28,6 +30,11 @@ func CreateWorkerTemplate(workerGUID string) IWorker {
 // GetGUID of the worker
 func (base WorkerTemplate) GetGUID() string {
 	return base.GUID
+}
+
+// GetGroup of the worker
+func (base WorkerTemplate) GetGroup() string {
+	return base.Group
 }
 
 // GetAge age of fhe link

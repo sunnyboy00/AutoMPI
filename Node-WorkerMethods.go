@@ -38,7 +38,9 @@ func (base *Node) workerProcessMessagesLoop() {
 func (base *Node) AttachWorker(worker IWorker) {
 	worker.AttachSendMethod(base.Send)
 	base.workers[worker.GetGUID()] = worker
-	base.addLocalWorkerLocation(worker.GetGUID())
+
+	base.LocalWorkersLocation[worker.GetGUID()] = CreateWorkerLocation(worker.GetGUID(), worker.GetGroup(), base.MyNodeGUID)
+	base.LocalWorkersAnnouncingLocation[worker.GetGUID()] = defautNumberOfWorkerLocationAnnouncements
 }
 
 // DetachWorker Close() the worker and remove it from the Node
@@ -54,10 +56,6 @@ func (base *Node) DetachWorker(workerGUID string) {
 	}
 }
 
-func (base *Node) addLocalWorkerLocation(WorkerGUID string) {
-	base.LocalWorkersLocation[WorkerGUID] = CreateWorkerLocation(WorkerGUID, base.MyNodeGUID)
-	base.LocalWorkersAnnouncingLocation[WorkerGUID] = defautNumberOfWorkerLocationAnnouncements
-}
 func (base *Node) removeLocalWorkerLocation(WorkerGUID string) {
 
 	_, ok := base.LocalWorkersLocation[WorkerGUID]
@@ -71,7 +69,7 @@ func (base *Node) isALocalWorker(WorkerGUID string) bool {
 }
 
 func (base *Node) processWorkerLocation(Message MapMessage) {
-	base.AllWorkersLocation[Message.GetValue(SystemMessageDataPartGUIDWorker)] = CreateWorkerLocation(Message.GetValue(SystemMessageDataPartGUIDWorker), Message.GetValue(SystemMessageDataPartGUIDNode))
+	base.AllWorkersLocation[Message.GetValue(SystemMessageDataPartGUIDWorker)] = CreateWorkerLocation(Message.GetValue(SystemMessageDataPartGUIDWorker), Message.GetValue(SystemMessageDataPartGroupWorker), Message.GetValue(SystemMessageDataPartGUIDNode))
 }
 
 func (base *Node) announceAllAgentsInLocalAgentsAnnouncing() {
@@ -83,6 +81,7 @@ func (base *Node) announceAllAgentsInLocalAgentsAnnouncing() {
 	for key, value := range base.LocalWorkersAnnouncingLocation {
 		if value > 0 {
 			TemplateMessage[SystemMessageDataPartGUIDWorker] = key
+			TemplateMessage[SystemMessageDataPartGroupWorker] = base.LocalWorkersLocation[key].Group
 			base.BoardCaster.Boardcast(CreateMapMessage(TemplateMessage))
 			base.LocalWorkersAnnouncingLocation[key]--
 		} else {

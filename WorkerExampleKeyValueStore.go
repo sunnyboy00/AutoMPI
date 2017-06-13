@@ -9,6 +9,7 @@ import (
 // WorkerExampleKeyValueStore template worker
 type WorkerExampleKeyValueStore struct {
 	GUID        string
+	Group       string
 	CreatedAt   time.Time
 	MessageList []MapMessage
 	Send        func(MapMessage)
@@ -20,6 +21,7 @@ type WorkerExampleKeyValueStore struct {
 func CreateWorkerExampleKeyValueStore(workerGUID string) IWorker {
 	worker := new(WorkerExampleKeyValueStore)
 	worker.GUID = workerGUID
+	worker.Group = ""
 	worker.CreatedAt = time.Now()
 	worker.LastDidWork = time.Now()
 	worker.MessageList = make([]MapMessage, 0)
@@ -74,6 +76,11 @@ func (base *WorkerExampleKeyValueStore) DoWork() {
 // GetGUID of the worker
 func (base WorkerExampleKeyValueStore) GetGUID() string {
 	return base.GUID
+}
+
+// GetGroup of the worker
+func (base WorkerExampleKeyValueStore) GetGroup() string {
+	return base.Group
 }
 
 // GetAge age of fhe link
