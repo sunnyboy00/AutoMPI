@@ -1,6 +1,10 @@
 package AutoMPI
 
 const (
+	// DestinationAllNodes -> broadcast
+	DestinationAllNodes = "ALLNodes"
+	// DestinationAllWorkers -> broadcast
+	DestinationAllWorkers = "ALLWorkers"
 
 	// SystemKeysAutoMPISystemMessage AutoMPISystemMessage key
 	SystemKeysAutoMPISystemMessage = "AutoMPI_System_Message"

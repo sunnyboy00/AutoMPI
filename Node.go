@@ -36,7 +36,7 @@ type Node struct {
 	LocalWorkersAnnouncingLocation map[string]int
 	AllWorkersLocation             map[string]*WorkerLocation
 
-	workers        map[string]IWorker
+	Workers        map[string]IWorker
 	WorkersWorking bool
 }
 
@@ -59,7 +59,7 @@ func CreateNode(
 	base.LocalWorkersLocation = map[string]*WorkerLocation{}
 	base.LocalWorkersAnnouncingLocation = map[string]int{}
 	base.AllWorkersLocation = map[string]*WorkerLocation{}
-	base.workers = map[string]IWorker{}
+	base.Workers = map[string]IWorker{}
 
 	base.AttachExternalMessageHandler(ExternalMessageProcessor)
 
@@ -87,9 +87,10 @@ func CreateNode(
 	base.WorkersWorking = true
 	go base.workerWorkLoop()
 	go base.workerProcessMessagesLoop()
-	fmt.Println("Workers gorutine started")
+	fmt.Printf("Workers goroutine started\n")
 
 	go base.stateServe()
+	fmt.Printf("HTTP state server started\n")
 
 	return base
 }
@@ -137,9 +138,16 @@ func (base *Node) messageHandler(Message MapMessage) {
 		}
 	case base.isALocalWorker(Message.DestinationGUID):
 		{
-			base.workers[Message.DestinationGUID].QueueMessage(Message)
+			base.Workers[Message.DestinationGUID].QueueMessage(Message)
 		}
 		break
+	case Message.DestinationGUID == DestinationAllWorkers:
+		for _, value := range base.Workers {
+			value.QueueMessage(Message)
+		}
+		break
+	case Message.DestinationGUID == DestinationAllNodes:
+		fallthrough
 	default:
 		{
 			for index := range base.ExternalMessageProcessors {
@@ -175,11 +183,13 @@ func (base *Node) ConnectToHost(TheirGUID string, RemoteIPEndPoint string) {
 // Note destination "all by default will only be delivered to the Node's external handler
 func (base *Node) Send(Message MapMessage) {
 	switch {
-	case Message.DestinationGUID == "all":
+	case Message.DestinationGUID == DestinationAllNodes:
+		fallthrough
+	case Message.DestinationGUID == DestinationAllWorkers:
 		base.BoardCaster.Boardcast(Message)
 		break
 	case base.isALocalWorker(Message.DestinationGUID):
-		base.workers[Message.DestinationGUID].QueueMessage(Message)
+		base.Workers[Message.DestinationGUID].QueueMessage(Message)
 		break
 	default:
 		parentNode, IsWorkerAndKnowsLocation := base.getHostingNodeOfWorkerBySearchingCollections(Message.DestinationGUID) // test as Worker location
@@ -203,7 +213,7 @@ func (base *Node) Close() {
 
 	base.WorkersWorking = false
 
-	for _, value := range base.workers {
+	for _, value := range base.Workers {
 		base.DetachWorker(value.GetGUID())
 	}
 
@@ -217,7 +227,7 @@ func (base *Node) Close() {
 }
 
 // CloseAllLinks close all outgoing and incomming links
-// called by Close, but could also be a method of reinitilisation without closing all workers
+// called by Close, but could also be a method of reinitilisation without closing all Workers
 func (base *Node) CloseAllLinks() {
 	for _, element := range base.OutgoingLinks {
 		element.Close()

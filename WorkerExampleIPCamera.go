@@ -14,12 +14,13 @@ import (
 
 // WorkerExampleIPCamera example worker
 type WorkerExampleIPCamera struct {
-	GUID        string
-	CreatedAt   time.Time
-	MessageList []MapMessage
-	Send        func(MapMessage)
-	LastDidWork time.Time
-	sourceURL   string
+	GUID               string
+	CreatedAt          time.Time
+	MessageList        []MapMessage
+	Send               func(MapMessage)
+	LastDidWork        time.Time
+	sourceURL          string
+	parentNodesMethods map[string]func(interface{}) interface{}
 }
 
 // CreateWorkerExampleIPCamera as a template
@@ -30,6 +31,7 @@ func CreateWorkerExampleIPCamera(workerGUID string, sourceURL string) IWorker {
 	worker.CreatedAt = time.Now()
 	worker.LastDidWork = time.Now()
 	worker.MessageList = make([]MapMessage, 0)
+	worker.parentNodesMethods = make(map[string]func(interface{}) interface{})
 	return worker
 }
 
@@ -88,6 +90,11 @@ func (base WorkerExampleIPCamera) GetAge() string {
 // AttachSendMethod of the
 func (base *WorkerExampleIPCamera) AttachSendMethod(parentsSendFunction func(MapMessage)) {
 	base.Send = parentsSendFunction
+}
+
+// AttachNodeMethod to the worker
+func (base *WorkerExampleIPCamera) AttachNodeMethod(functionName string, function func(interface{}) interface{}) {
+	base.parentNodesMethods[functionName] = function
 }
 
 // QueueMessage Queue messge for the worker

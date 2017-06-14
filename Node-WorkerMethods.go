@@ -10,8 +10,8 @@ const (
 
 func (base *Node) workerWorkLoop() {
 	for {
-		if len(base.workers) > 0 {
-			for _, value := range base.workers {
+		if len(base.Workers) > 0 {
+			for _, value := range base.Workers {
 				value.DoWork()
 			}
 		} else {
@@ -21,8 +21,8 @@ func (base *Node) workerWorkLoop() {
 }
 func (base *Node) workerProcessMessagesLoop() {
 	for {
-		if len(base.workers) > 0 {
-			for _, value := range base.workers {
+		if len(base.Workers) > 0 {
+			for _, value := range base.Workers {
 				value.ProcessMessages()
 			}
 		} else {
@@ -36,17 +36,19 @@ func (base *Node) workerProcessMessagesLoop() {
 // Add worker to worker processing loop
 // Announce the location on the worker
 func (base *Node) AttachWorker(worker IWorker) {
-	worker.AttachSendMethod(base.Send)
-	base.workers[worker.GetGUID()] = worker
-	base.addLocalWorkerLocation(worker.GetGUID())
+	if worker != nil {
+		worker.AttachSendMethod(base.Send)
+		base.Workers[worker.GetGUID()] = worker
+		base.addLocalWorkerLocation(worker.GetGUID())
+	}
 }
 
 // DetachWorker Close() the worker and remove it from the Node
 func (base *Node) DetachWorker(workerGUID string) {
-	_, ok := base.workers[workerGUID]
+	_, ok := base.Workers[workerGUID]
 	if ok {
-		base.workers[workerGUID].Close()
-		delete(base.workers, workerGUID)
+		base.Workers[workerGUID].Close()
+		delete(base.Workers, workerGUID)
 		base.removeLocalWorkerLocation(workerGUID)
 		fmt.Printf("Worker %s stoped\n", workerGUID)
 	} else {

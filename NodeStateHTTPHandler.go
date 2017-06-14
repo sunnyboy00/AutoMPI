@@ -34,9 +34,9 @@ func (base *Node) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "*******************************************************************</br>\n")
 	fmt.Fprintf(w, "</br>\n")
 	fmt.Fprintf(w, "</br>\n")
-	fmt.Fprintln(w, "Number of local workers:", len(base.workers), "</br>")
+	fmt.Fprintln(w, "Number of local Workers:", len(base.Workers), "</br>")
 	fmt.Fprintf(w, "*************************** Worker List ***************************</br>\n")
-	for key, value := range base.workers {
+	for key, value := range base.Workers {
 		fmt.Fprintf(w, "%s  Age: %s s</br>\n", key, value.GetAge())
 	}
 	fmt.Fprintf(w, "*************************** *********** ***************************</br>\n")
