@@ -10,6 +10,8 @@ type IWorker interface {
 	ProcessMessages()
 	// attache the AutoMPI.Node.Send(func(MapMessage)) method to this worker
 	AttachSendMethod(func(MapMessage))
+	// AttachNodeMethod attach a nodes.method into the worker to -
+	AttachNodeMethod(string, func(interface{}) interface{})
 	// do work
 	DoWork()
 	// close the worker

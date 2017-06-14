@@ -8,12 +8,13 @@ import (
 
 // WorkerExampleKeyValueStore template worker
 type WorkerExampleKeyValueStore struct {
-	GUID        string
-	CreatedAt   time.Time
-	MessageList []MapMessage
-	Send        func(MapMessage)
-	LastDidWork time.Time
-	DataStored  map[string][]byte
+	GUID               string
+	CreatedAt          time.Time
+	MessageList        []MapMessage
+	Send               func(MapMessage)
+	LastDidWork        time.Time
+	DataStored         map[string][]byte
+	parentNodesMethods map[string]func(interface{}) interface{}
 }
 
 // CreateWorkerExampleKeyValueStore as a template
@@ -24,6 +25,7 @@ func CreateWorkerExampleKeyValueStore(workerGUID string) IWorker {
 	worker.LastDidWork = time.Now()
 	worker.MessageList = make([]MapMessage, 0)
 	worker.DataStored = make(map[string][]byte)
+	worker.parentNodesMethods = make(map[string]func(interface{}) interface{})
 	return worker
 }
 
@@ -74,6 +76,11 @@ func (base *WorkerExampleKeyValueStore) DoWork() {
 // GetGUID of the worker
 func (base WorkerExampleKeyValueStore) GetGUID() string {
 	return base.GUID
+}
+
+// AttachNodeMethod to the worker
+func (base *WorkerExampleKeyValueStore) AttachNodeMethod(functionName string, function func(interface{}) interface{}) {
+	base.parentNodesMethods[functionName] = function
 }
 
 // GetAge age of fhe link

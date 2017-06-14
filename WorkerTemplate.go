@@ -8,11 +8,12 @@ import (
 
 // WorkerTemplate template worker
 type WorkerTemplate struct {
-	GUID        string
-	CreatedAt   time.Time
-	MessageList []MapMessage
-	Send        func(MapMessage)
-	LastDidWork time.Time
+	GUID               string
+	CreatedAt          time.Time
+	MessageList        []MapMessage
+	Send               func(MapMessage)
+	LastDidWork        time.Time
+	parentNodesMethods map[string]func(interface{}) interface{}
 }
 
 // CreateWorkerTemplate as a template
@@ -22,6 +23,7 @@ func CreateWorkerTemplate(workerGUID string) IWorker {
 	worker.CreatedAt = time.Now()
 	worker.LastDidWork = time.Now()
 	worker.MessageList = make([]MapMessage, 0)
+	worker.parentNodesMethods = make(map[string]func(interface{}) interface{})
 	return worker
 }
 
@@ -44,6 +46,11 @@ func (base *WorkerTemplate) getDeltaTime() int64 {
 // AttachSendMethod of the
 func (base *WorkerTemplate) AttachSendMethod(parentsSendFunction func(MapMessage)) {
 	base.Send = parentsSendFunction
+}
+
+// AttachNodeMethod to the worker
+func (base *WorkerTemplate) AttachNodeMethod(functionName string, function func(interface{}) interface{}) {
+	base.parentNodesMethods[functionName] = function
 }
 
 // QueueMessage Queue messge for the worker
