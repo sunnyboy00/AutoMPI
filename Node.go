@@ -3,6 +3,7 @@ package AutoMPI
 import (
 	"fmt"
 	"net"
+	"sync"
 	"time"
 )
 
@@ -37,6 +38,7 @@ type Node struct {
 	AllWorkersLocation             map[string]*WorkerLocation
 
 	Workers        map[string]IWorker
+	WorkerLock     sync.RWMutex
 	WorkersWorking bool
 }
 
