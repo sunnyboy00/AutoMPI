@@ -11,9 +11,11 @@ const (
 func (base *Node) workerWorkLoop() {
 	for {
 		if len(base.Workers) > 0 {
+			base.WorkerLock.RLock()
 			for _, value := range base.Workers {
 				value.DoWork()
 			}
+			base.WorkerLock.RUnlock()
 		} else {
 			time.Sleep(secondsToSleepIfNoWorkers * time.Second)
 		}
@@ -22,9 +24,11 @@ func (base *Node) workerWorkLoop() {
 func (base *Node) workerProcessMessagesLoop() {
 	for {
 		if len(base.Workers) > 0 {
+			base.WorkerLock.RLock()
 			for _, value := range base.Workers {
 				value.ProcessMessages()
 			}
+			base.WorkerLock.RUnlock()
 		} else {
 			time.Sleep(secondsToSleepIfNoWorkers * time.Second)
 		}
@@ -38,7 +42,9 @@ func (base *Node) workerProcessMessagesLoop() {
 func (base *Node) AttachWorker(worker IWorker) {
 	if worker != nil {
 		worker.AttachSendMethod(base.Send)
+		base.WorkerLock.Lock()
 		base.Workers[worker.GetGUID()] = worker
+		base.WorkerLock.Unlock()
 		base.addLocalWorkerLocation(worker.GetGUID())
 	}
 }
@@ -47,8 +53,10 @@ func (base *Node) AttachWorker(worker IWorker) {
 func (base *Node) DetachWorker(workerGUID string) {
 	_, ok := base.Workers[workerGUID]
 	if ok {
+		base.WorkerLock.Lock()
 		base.Workers[workerGUID].Close()
 		delete(base.Workers, workerGUID)
+		base.WorkerLock.Unlock()
 		base.removeLocalWorkerLocation(workerGUID)
 		fmt.Printf("Worker %s stoped\n", workerGUID)
 	} else {

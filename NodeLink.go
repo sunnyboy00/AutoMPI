@@ -203,9 +203,6 @@ func makeBufferOfCorrectSize(totalToRead int, readSoFar int) []byte {
 	} else {
 		ToReadThisTime = YetToRead % bufferSize
 	}
-	/*	if ToReadThisTime != bufferSize {
-		println(ToReadThisTime)
-	}*/
 	return make([]byte, ToReadThisTime)
 }
 
