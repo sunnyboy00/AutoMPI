@@ -287,7 +287,9 @@ func (base *NodeLink) readString() (string, bool) {
 // Close Close the link
 func (base *NodeLink) Close() {
 	base.Receiving = false
-	base.Connection.Close()
-	base.Connection = nil
+	if nil != base.Connection {
+		base.Connection.Close()
+		base.Connection = nil
+	}
 	base.Detach(base.TheirGUID)
 }
