@@ -120,4 +120,13 @@ Messages are checked(and passed) in this order when received by a node
 * Worker Message
 * Mode Message (Passed to external message handler(s))
 
+## Key Ports
+UDP Boardcast port: 9999
+TCP Listener Port: 8888
+HTTP Node State Port: 8800
 
+## NodeStateHTTPHandler
+
+Can be fund by pointing your web browser to the bound IP address and port 8800 eg: http://192.168.1.20:8800/
+
+![alt text](HttpNodeState.png)
