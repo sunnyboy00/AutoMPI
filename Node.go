@@ -15,52 +15,53 @@ const (
 )
 
 // Node base struct for the AutoMPI node
+// call AutoMPI.CreateNode() to create and start
 type Node struct {
-	HeartBeatMessage       MapMessage
-	heartBeating           bool
-	CurrentMastersGUID     string
-	MyNodeGUID             string
-	LocalAddressString     string
-	MyLinkReceivingAddress *net.TCPAddr
+	heartBeatMessage MapMessage
+	heartBeating     bool
 
-	BoardCaster UDPBoardcaster
+	GUID                   string
+	localAddressString     string
+	myLinkReceivingAddress *net.TCPAddr
 
-	ExternalMessageProcessors []func(MapMessage, *Node)
+	boardCaster UDPBoardcaster
 
-	LocalListener *net.TCPListener
+	externalMessageProcessors []func(MapMessage, *Node)
+
+	localListener *net.TCPListener
 	listening     bool
 
-	IncommingLinks map[string]*NodeLink
-	OutgoingLinks  map[string]*NodeLink
+	incommingLinks map[string]*NodeLink
+	outgoingLinks  map[string]*NodeLink
 
-	LocalWorkersLocation           map[string]*WorkerLocation
-	LocalWorkersAnnouncingLocation map[string]int
-	AllWorkersLocation             map[string]*WorkerLocation
+	localWorkersLocation           map[string]*WorkerLocation
+	localWorkersAnnouncingLocation map[string]int
+	allWorkersLocation             map[string]*WorkerLocation
 
 	Workers        map[string]IWorker
-	WorkerLock     sync.RWMutex
-	WorkersWorking bool
+	workerLock     sync.RWMutex
+	workersWorking bool
 }
 
 // CreateNode create a Node of the AutoMPI
 func CreateNode(
 	// GUID of the node
-	MyNodeGUID string,
+	GUID string,
 	// Local ip address for the node IE: "192.168.1.50"
 	LocalAddress string,
 	// Primary external message handler
 	ExternalMessageProcessor func(MapMessage, *Node)) *Node {
 
 	base := new(Node)
-	base.MyNodeGUID = MyNodeGUID
-	base.LocalAddressString = LocalAddress
+	base.GUID = GUID
+	base.localAddressString = LocalAddress
 
-	base.IncommingLinks = map[string]*NodeLink{}
-	base.OutgoingLinks = map[string]*NodeLink{}
-	base.ExternalMessageProcessors = make([]func(MapMessage, *Node), 0)
-	base.LocalWorkersLocation = map[string]*WorkerLocation{}
-	base.LocalWorkersAnnouncingLocation = map[string]int{}
-	base.AllWorkersLocation = map[string]*WorkerLocation{}
+	base.incommingLinks = map[string]*NodeLink{}
+	base.outgoingLinks = map[string]*NodeLink{}
+	base.externalMessageProcessors = make([]func(MapMessage, *Node), 0)
+	base.localWorkersLocation = map[string]*WorkerLocation{}
+	base.localWorkersAnnouncingLocation = map[string]int{}
+	base.allWorkersLocation = map[string]*WorkerLocation{}
 	base.Workers = map[string]IWorker{}
 
 	base.AttachExternalMessageHandler(ExternalMessageProcessor)
@@ -68,25 +69,25 @@ func CreateNode(
 	var err error
 	err = nil
 	println("Listening on: ", LocalAddress+receivingPort, "\n")
-	base.MyLinkReceivingAddress, err = net.ResolveTCPAddr("tcp", LocalAddress+receivingPort)
+	base.myLinkReceivingAddress, err = net.ResolveTCPAddr("tcp", LocalAddress+receivingPort)
 	if err != nil {
-		println("MyLinkReceivingAddress ResolveTCPAddr failed: ", err)
+		println("myLinkReceivingAddress ResolveTCPAddr failed: ", err)
 	}
-	base.LocalListener, err = net.ListenTCP("tcp", base.MyLinkReceivingAddress)
+	base.localListener, err = net.ListenTCP("tcp", base.myLinkReceivingAddress)
 	if err != nil {
 		println("TCPListener failed: ", err)
 	}
 
-	base.BoardCaster.Bind(base.messageHandler)
-	base.createHeartbeatMessage(LocalAddress + receivingPort)
+	base.boardCaster.Bind(base.messageHandler)
+	base.createheartBeatMessage(LocalAddress + receivingPort)
 
 	base.heartBeating = true
 	go base.heartBeatLoop()
 
 	base.listening = true
-	go base.ListenerLoopForIncommingLink()
+	go base.listenerLoopForIncommingLink()
 
-	base.WorkersWorking = true
+	base.workersWorking = true
 	go base.workerWorkLoop()
 	go base.workerProcessMessagesLoop()
 	fmt.Printf("Workers goroutine started\n")
@@ -97,11 +98,11 @@ func CreateNode(
 	return base
 }
 
-// ListenerLoopForIncommingLink listens for new incomming links untill base.listening is set false
-func (base *Node) ListenerLoopForIncommingLink() {
+// listenerLoopForIncommingLink listens for new incomming links untill base.listening is set false
+func (base *Node) listenerLoopForIncommingLink() {
 	for base.listening {
-		NewConnection, _ := base.LocalListener.Accept()
-		CreateNodelinkReceiveIncomingConnection(NewConnection, base.MyNodeGUID, base.messageHandler, base.attachIncommingLink, base.detachIncommingLink)
+		NewConnection, _ := base.localListener.Accept()
+		CreateNodelinkReceiveIncomingConnection(NewConnection, base.GUID, base.messageHandler, base.attachIncommingLink, base.detachIncommingLink)
 	}
 }
 
@@ -114,7 +115,7 @@ func (base *Node) messageHandler(Message MapMessage) {
 			if base.listening {
 				switch Message.GetValue(SystemKeysAutoMPISystemMessage) {
 				case SystemKeyDetailsNodeLocation:
-					if base.MyNodeGUID != Message.GetValue(SystemMessageDataPartGUIDNode) {
+					if base.GUID != Message.GetValue(SystemMessageDataPartGUIDNode) {
 						base.ConnectToHost(Message.GetValue(SystemMessageDataPartGUIDNode), Message.GetValue(SystemMessageDataPartHOSTIPEP))
 					}
 					break
@@ -124,7 +125,7 @@ func (base *Node) messageHandler(Message MapMessage) {
 					}
 					break
 				case SystemKeyDetailsConnectToMe:
-					if base.MyNodeGUID != Message.GetValue(SystemMessageDataPartGUIDNode) {
+					if base.GUID != Message.GetValue(SystemMessageDataPartGUIDNode) {
 						base.ConnectToHost(Message.GetValue(SystemMessageDataPartGUIDNode), Message.GetValue(SystemMessageDataPartHOSTIPEP))
 					}
 					break
@@ -152,8 +153,8 @@ func (base *Node) messageHandler(Message MapMessage) {
 		fallthrough
 	default:
 		{
-			for index := range base.ExternalMessageProcessors {
-				base.ExternalMessageProcessors[index](Message, base)
+			for index := range base.externalMessageProcessors {
+				base.externalMessageProcessors[index](Message, base)
 			}
 		}
 		break
@@ -163,20 +164,20 @@ func (base *Node) messageHandler(Message MapMessage) {
 // AttachExternalMessageHandler attaches an additional external message handler
 // multiple handlers can be attached
 func (base *Node) AttachExternalMessageHandler(MessageHandlerFunction func(MapMessage, *Node)) {
-	base.ExternalMessageProcessors = append(base.ExternalMessageProcessors, MessageHandlerFunction)
+	base.externalMessageProcessors = append(base.externalMessageProcessors, MessageHandlerFunction)
 }
 
 // ConnectToHost connect to the host of this GUID and IP address, Most cases only called from inside the Node
 func (base *Node) ConnectToHost(TheirGUID string, RemoteIPEndPoint string) {
 
-	_, ok := base.OutgoingLinks[TheirGUID]
+	_, ok := base.outgoingLinks[TheirGUID]
 	if ok {
 		return
 	}
 
-	_, connected := CreateNodelinkOutgoingConnection(base.LocalAddressString, RemoteIPEndPoint, base.MyNodeGUID, base.messageHandler, base.attachOutgoingLink, base.detachOutgoingLink)
+	_, connected := CreateNodelinkOutgoingConnection(base.localAddressString, RemoteIPEndPoint, base.GUID, base.messageHandler, base.attachOutgoingLink, base.detachOutgoingLink)
 	if !connected {
-		println("Failed to link with: ", base.MyNodeGUID, " X ", TheirGUID)
+		println("Failed to link with: ", base.GUID, " X ", TheirGUID)
 	}
 }
 
@@ -188,7 +189,7 @@ func (base *Node) Send(Message MapMessage) {
 	case Message.DestinationGUID == DestinationAllNodes:
 		fallthrough
 	case Message.DestinationGUID == DestinationAllWorkers:
-		base.BoardCaster.Boardcast(Message)
+		base.boardCaster.Boardcast(Message)
 		break
 	case base.isALocalWorker(Message.DestinationGUID):
 		base.Workers[Message.DestinationGUID].QueueMessage(Message)
@@ -196,12 +197,12 @@ func (base *Node) Send(Message MapMessage) {
 	default:
 		parentNode, IsWorkerAndKnowsLocation := base.getHostingNodeOfWorkerBySearchingCollections(Message.DestinationGUID) // test as Worker location
 		if IsWorkerAndKnowsLocation {
-			link, ok := base.OutgoingLinks[parentNode]
+			link, ok := base.outgoingLinks[parentNode]
 			if ok {
 				link.Send(Message)
 			}
 		} else { // try Node as destination
-			link, ok := base.OutgoingLinks[Message.DestinationGUID]
+			link, ok := base.outgoingLinks[Message.DestinationGUID]
 			if ok {
 				link.Send(Message)
 			}
@@ -213,7 +214,7 @@ func (base *Node) Send(Message MapMessage) {
 // Close the node
 func (base *Node) Close() {
 
-	base.WorkersWorking = false
+	base.workersWorking = false
 
 	for _, value := range base.Workers {
 		base.DetachWorker(value.GetGUID())
@@ -222,7 +223,7 @@ func (base *Node) Close() {
 	base.heartBeating = false
 
 	base.listening = false
-	base.LocalListener.Close()
+	base.localListener.Close()
 
 	base.CloseAllLinks()
 
@@ -231,77 +232,76 @@ func (base *Node) Close() {
 // CloseAllLinks close all outgoing and incomming links
 // called by Close, but could also be a method of reinitilisation without closing all Workers
 func (base *Node) CloseAllLinks() {
-	for _, element := range base.OutgoingLinks {
+	for _, element := range base.outgoingLinks {
 		element.Close()
 	}
-	for _, element := range base.IncommingLinks {
+	for _, element := range base.incommingLinks {
 		element.Close()
 	}
 }
 
 // create the stanndard hartbeat message for this node
-func (base *Node) createHeartbeatMessage(MyIPEndPoint string) {
-	HeartBeatMessage := make(map[string]string)
-	HeartBeatMessage[SystemKeysAutoMPISystemMessage] = SystemKeyDetailsNodeLocation
-	HeartBeatMessage[SystemMessageDataPartGUIDNode] = base.MyNodeGUID
-	HeartBeatMessage[SystemMessageDataPartHOSTIPEP] = MyIPEndPoint
+func (base *Node) createheartBeatMessage(MyIPEndPoint string) {
+	heartBeatMessage := make(map[string]string)
+	heartBeatMessage[SystemKeysAutoMPISystemMessage] = SystemKeyDetailsNodeLocation
+	heartBeatMessage[SystemMessageDataPartGUIDNode] = base.GUID
+	heartBeatMessage[SystemMessageDataPartHOSTIPEP] = MyIPEndPoint
 
-	base.HeartBeatMessage.SetMessage(HeartBeatMessage)
+	base.heartBeatMessage.SetMessage(heartBeatMessage)
 }
 
 func (base *Node) heartBeatLoop() {
 	for base.heartBeating {
-		base.BoardCaster.Boardcast(base.HeartBeatMessage)
+		base.boardCaster.Boardcast(base.heartBeatMessage)
 		base.announceAllAgentsInLocalAgentsAnnouncing()
 		time.Sleep(time.Second * heartBeatInterval)
 	}
 }
 
 func (base *Node) attachIncommingLink(TheirGUID string, Link *NodeLink) {
-	base.IncommingLinks[TheirGUID] = Link
-	fmt.Printf("Attached Incoming link: %s <- %s \n", base.MyNodeGUID, Link.GUIDSource)
+	base.incommingLinks[TheirGUID] = Link
+	fmt.Printf("Attached Incoming link: %s <- %s \n", base.GUID, Link.GUIDSource)
 	TemplateMessage := make(map[string]string)
 	TemplateMessage[SystemKeysAutoMPISystemMessage] = SystemKeyDetailsWorkerLocation
-	TemplateMessage[SystemMessageDataPartGUIDNode] = base.MyNodeGUID
+	TemplateMessage[SystemMessageDataPartGUIDNode] = base.GUID
 
-	for key := range base.LocalWorkersLocation {
+	for key := range base.localWorkersLocation {
 		TemplateMessage[SystemMessageDataPartGUIDWorker] = key
-		base.IncommingLinks[TheirGUID].Send(CreateMapMessage(TemplateMessage))
+		base.incommingLinks[TheirGUID].Send(CreateMapMessage(TemplateMessage))
 	}
 }
 func (base *Node) attachOutgoingLink(TheirGUID string, Link *NodeLink) {
-	base.OutgoingLinks[TheirGUID] = Link
-	println("Attached Outgoing link: ", base.MyNodeGUID, " -> ", Link.GUIDDestination)
-	fmt.Printf("Attached Outgoing link: %s -> %s \n", base.MyNodeGUID, Link.GUIDDestination)
+	base.outgoingLinks[TheirGUID] = Link
+	fmt.Printf("Attached Outgoing link: %s -> %s \n", base.GUID, Link.GUIDDestination)
 	TemplateMessage := make(map[string]string)
 	TemplateMessage[SystemKeysAutoMPISystemMessage] = SystemKeyDetailsWorkerLocation
-	TemplateMessage[SystemMessageDataPartGUIDNode] = base.MyNodeGUID
+	TemplateMessage[SystemMessageDataPartGUIDNode] = base.GUID
 
-	for key := range base.LocalWorkersLocation {
+	for key := range base.localWorkersLocation {
 		TemplateMessage[SystemMessageDataPartGUIDWorker] = key
-		base.OutgoingLinks[TheirGUID].Send(CreateMapMessage(TemplateMessage))
+		base.outgoingLinks[TheirGUID].Send(CreateMapMessage(TemplateMessage))
 	}
 }
 
 // IsOutgoingLink is there a link to the Node
 func (base *Node) IsOutgoingLink(TheirGUID string) bool {
-	if _, ok := base.OutgoingLinks[TheirGUID]; ok {
+	if _, ok := base.outgoingLinks[TheirGUID]; ok {
 		return true
 	}
 	return false
 }
 
 func (base *Node) detachIncommingLink(TheirGUID string) {
-	_, ok := base.IncommingLinks[TheirGUID]
+	_, ok := base.incommingLinks[TheirGUID]
 	if ok {
-		delete(base.IncommingLinks, TheirGUID)
+		delete(base.incommingLinks, TheirGUID)
 	}
 	println("Detaching Incoming Link To:", TheirGUID)
 }
 func (base *Node) detachOutgoingLink(TheirGUID string) {
-	_, ok := base.OutgoingLinks[TheirGUID]
+	_, ok := base.outgoingLinks[TheirGUID]
 	if ok {
-		delete(base.OutgoingLinks, TheirGUID)
+		delete(base.outgoingLinks, TheirGUID)
 	}
 	println("Detaching Outgoing Link To:", TheirGUID)
 }
