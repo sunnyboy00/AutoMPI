@@ -11,11 +11,11 @@ const (
 func (base *Node) workerWorkLoop() {
 	for {
 		if len(base.Workers) > 0 {
-			base.WorkerLock.RLock()
+			base.workerLock.RLock()
 			for _, value := range base.Workers {
 				value.DoWork()
 			}
-			base.WorkerLock.RUnlock()
+			base.workerLock.RUnlock()
 		} else {
 			time.Sleep(secondsToSleepIfNoWorkers * time.Second)
 		}
@@ -24,11 +24,11 @@ func (base *Node) workerWorkLoop() {
 func (base *Node) workerProcessMessagesLoop() {
 	for {
 		if len(base.Workers) > 0 {
-			base.WorkerLock.RLock()
+			base.workerLock.RLock()
 			for _, value := range base.Workers {
 				value.ProcessMessages()
 			}
-			base.WorkerLock.RUnlock()
+			base.workerLock.RUnlock()
 		} else {
 			time.Sleep(secondsToSleepIfNoWorkers * time.Second)
 		}
@@ -42,9 +42,9 @@ func (base *Node) workerProcessMessagesLoop() {
 func (base *Node) AttachWorker(worker IWorker) {
 	if worker != nil {
 		worker.AttachSendMethod(base.Send)
-		base.WorkerLock.Lock()
+		base.workerLock.Lock()
 		base.Workers[worker.GetGUID()] = worker
-		base.WorkerLock.Unlock()
+		base.workerLock.Unlock()
 		base.addLocalWorkerLocation(worker.GetGUID())
 	}
 }
@@ -53,10 +53,10 @@ func (base *Node) AttachWorker(worker IWorker) {
 func (base *Node) DetachWorker(workerGUID string) {
 	_, ok := base.Workers[workerGUID]
 	if ok {
-		base.WorkerLock.Lock()
+		base.workerLock.Lock()
 		base.Workers[workerGUID].Close()
 		delete(base.Workers, workerGUID)
-		base.WorkerLock.Unlock()
+		base.workerLock.Unlock()
 		base.removeLocalWorkerLocation(workerGUID)
 		fmt.Printf("Worker %s stoped\n", workerGUID)
 	} else {
@@ -65,38 +65,38 @@ func (base *Node) DetachWorker(workerGUID string) {
 }
 
 func (base *Node) addLocalWorkerLocation(WorkerGUID string) {
-	base.LocalWorkersLocation[WorkerGUID] = CreateWorkerLocation(WorkerGUID, base.MyNodeGUID)
-	base.LocalWorkersAnnouncingLocation[WorkerGUID] = defautNumberOfWorkerLocationAnnouncements
+	base.localWorkersLocation[WorkerGUID] = CreateWorkerLocation(WorkerGUID, base.GUID)
+	base.localWorkersAnnouncingLocation[WorkerGUID] = defautNumberOfWorkerLocationAnnouncements
 }
 func (base *Node) removeLocalWorkerLocation(WorkerGUID string) {
 
-	_, ok := base.LocalWorkersLocation[WorkerGUID]
+	_, ok := base.localWorkersLocation[WorkerGUID]
 	if ok {
-		delete(base.LocalWorkersLocation, WorkerGUID)
+		delete(base.localWorkersLocation, WorkerGUID)
 	}
 }
 func (base *Node) isALocalWorker(WorkerGUID string) bool {
-	_, ok := base.LocalWorkersLocation[WorkerGUID]
+	_, ok := base.localWorkersLocation[WorkerGUID]
 	return ok
 }
 
 func (base *Node) processWorkerLocation(Message MapMessage) {
-	base.AllWorkersLocation[Message.GetValue(SystemMessageDataPartGUIDWorker)] = CreateWorkerLocation(Message.GetValue(SystemMessageDataPartGUIDWorker), Message.GetValue(SystemMessageDataPartGUIDNode))
+	base.allWorkersLocation[Message.GetValue(SystemMessageDataPartGUIDWorker)] = CreateWorkerLocation(Message.GetValue(SystemMessageDataPartGUIDWorker), Message.GetValue(SystemMessageDataPartGUIDNode))
 }
 
 func (base *Node) announceAllAgentsInLocalAgentsAnnouncing() {
 
 	TemplateMessage := make(map[string]string)
 	TemplateMessage[SystemKeysAutoMPISystemMessage] = SystemKeyDetailsWorkerLocation
-	TemplateMessage[SystemMessageDataPartGUIDNode] = base.MyNodeGUID
+	TemplateMessage[SystemMessageDataPartGUIDNode] = base.GUID
 
-	for key, value := range base.LocalWorkersAnnouncingLocation {
+	for key, value := range base.localWorkersAnnouncingLocation {
 		if value > 0 {
 			TemplateMessage[SystemMessageDataPartGUIDWorker] = key
-			base.BoardCaster.Boardcast(CreateMapMessage(TemplateMessage))
-			base.LocalWorkersAnnouncingLocation[key]--
+			base.boardCaster.Boardcast(CreateMapMessage(TemplateMessage))
+			base.localWorkersAnnouncingLocation[key]--
 		} else {
-			delete(base.LocalWorkersAnnouncingLocation, key)
+			delete(base.localWorkersAnnouncingLocation, key)
 		}
 
 	}
@@ -105,17 +105,17 @@ func (base *Node) announceAllAgentsInLocalAgentsAnnouncing() {
 func (base *Node) announceAllAgentsInLocalAgentsOnce() {
 	TemplateMessage := make(map[string]string)
 	TemplateMessage[SystemKeysAutoMPISystemMessage] = SystemKeyDetailsWorkerLocation
-	TemplateMessage[SystemMessageDataPartGUIDNode] = base.MyNodeGUID
+	TemplateMessage[SystemMessageDataPartGUIDNode] = base.GUID
 
-	for key := range base.LocalWorkersLocation {
+	for key := range base.localWorkersLocation {
 		TemplateMessage[SystemMessageDataPartGUIDWorker] = key
-		base.BoardCaster.Boardcast(CreateMapMessage(TemplateMessage))
+		base.boardCaster.Boardcast(CreateMapMessage(TemplateMessage))
 	}
 }
 
 func (base *Node) getHostingNodeOfWorkerBySearchingCollections(WorkerGUID string) (NodeGUID string, IsKnown bool) {
 
-	workerLocation, ok := base.AllWorkersLocation[WorkerGUID]
+	workerLocation, ok := base.allWorkersLocation[WorkerGUID]
 	if ok {
 		return workerLocation.parentNodeGUID, true
 	}

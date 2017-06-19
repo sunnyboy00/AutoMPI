@@ -23,12 +23,12 @@ func (base *Node) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	runtime.ReadMemStats(&m)
 	//log.Printf("\nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\n\n", m.Alloc/1024, m.TotalAlloc/1024, m.Sys/1024, m.NumGC)
 
-	fmt.Fprintf(w, "<!DOCTYPE html><html><head><title>AutiMPI Node: %s</title><meta http-equiv=\"refresh\" content=\"5\"><style>body {font-family: monospace;}</style></head><body></br>\n", base.MyNodeGUID)
+	fmt.Fprintf(w, "<!DOCTYPE html><html><head><title>AutiMPI Node: %s</title><meta http-equiv=\"refresh\" content=\"5\"><style>body {font-family: monospace;}</style></head><body></br>\n", base.GUID)
 
 	fmt.Fprintf(w, "*****************************   AutoMPI   *****************************</br>\n")
 	fmt.Fprintf(w, "</br>\n")
-	fmt.Fprintf(w, "NodeGUID: %s</br>\n", base.MyNodeGUID)
-	fmt.Fprintf(w, "Communications port: %s</br>\n", base.LocalAddressString+receivingPort)
+	fmt.Fprintf(w, "NodeGUID: %s</br>\n", base.GUID)
+	fmt.Fprintf(w, "Communications port: %s</br>\n", base.localAddressString+receivingPort)
 	fmt.Fprintf(w, "Alloc = %vKB TotalAlloc = %vKB Sys = %vKB NumGC = %v </br>\n", m.Alloc/1024, m.TotalAlloc/1024, m.Sys/1024, m.NumGC)
 	fmt.Fprintf(w, "</br>\n")
 	fmt.Fprintf(w, "*******************************************************************</br>\n")
@@ -42,14 +42,14 @@ func (base *Node) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "*************************** *********** ***************************</br>\n")
 	fmt.Fprintf(w, "</br>\n")
 	fmt.Fprintf(w, "</br>\n")
-	fmt.Fprintln(w, "************************ Outgoing links:", len(base.OutgoingLinks), "************************</br>")
-	for key, value := range base.OutgoingLinks {
+	fmt.Fprintln(w, "************************ Outgoing links:", len(base.outgoingLinks), "************************</br>")
+	for key, value := range base.outgoingLinks {
 		fmt.Fprintf(w, "NodeGUID: %s Address: %s Age:%s seconds &nbsp;<a href=\"http://%s%s\">Visit</a> </br> \n", key, value.GetRemoteAddressAndPortAsString(), value.GetAge(), value.GetRemoteAddressAsString(), hTTPStatePort)
 	}
 	fmt.Fprintf(w, "</br>\n")
 	fmt.Fprintf(w, "</br>\n")
-	fmt.Fprintln(w, "************************ Incoming links:", len(base.IncommingLinks), "************************</br>")
-	for key, value := range base.IncommingLinks {
+	fmt.Fprintln(w, "************************ Incoming links:", len(base.incommingLinks), "************************</br>")
+	for key, value := range base.incommingLinks {
 		fmt.Fprintf(w, "NodeGUID: %s Address: %s Age:%s seconds &nbsp;<a href=\"http://%s%s\">Visit</a> </br> \n", key, value.GetRemoteAddressAndPortAsString(), value.GetAge(), value.GetRemoteAddressAsString(), hTTPStatePort)
 	}
 
