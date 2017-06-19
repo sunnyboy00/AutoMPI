@@ -121,9 +121,9 @@ Messages are checked(and passed) in this order when received by a node
 * Mode Message (Passed to external message handler(s))
 
 ## Key Ports
-UDP Boardcast port: 9999
-TCP Listener Port: 8888
-HTTP Node State Port: 8800
+* UDP Boardcast port: 9999
+* TCP Listener Port: 8888
+* HTTP Node State Port: 8800
 
 ## NodeStateHTTPHandler
 
