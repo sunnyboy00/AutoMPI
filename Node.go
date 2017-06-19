@@ -259,7 +259,7 @@ func (base *Node) heartBeatLoop() {
 
 func (base *Node) attachIncommingLink(TheirGUID string, Link *NodeLink) {
 	base.IncommingLinks[TheirGUID] = Link
-	println("Attached Incoming link: ", base.MyNodeGUID, " <- ", Link.GUIDSource)
+	fmt.Printf("Attached Incoming link: %s <- %s \n", base.MyNodeGUID, Link.GUIDSource)
 	TemplateMessage := make(map[string]string)
 	TemplateMessage[SystemKeysAutoMPISystemMessage] = SystemKeyDetailsWorkerLocation
 	TemplateMessage[SystemMessageDataPartGUIDNode] = base.MyNodeGUID
@@ -272,6 +272,7 @@ func (base *Node) attachIncommingLink(TheirGUID string, Link *NodeLink) {
 func (base *Node) attachOutgoingLink(TheirGUID string, Link *NodeLink) {
 	base.OutgoingLinks[TheirGUID] = Link
 	println("Attached Outgoing link: ", base.MyNodeGUID, " -> ", Link.GUIDDestination)
+	fmt.Printf("Attached Outgoing link: %s -> %s \n", base.MyNodeGUID, Link.GUIDDestination)
 	TemplateMessage := make(map[string]string)
 	TemplateMessage[SystemKeysAutoMPISystemMessage] = SystemKeyDetailsWorkerLocation
 	TemplateMessage[SystemMessageDataPartGUIDNode] = base.MyNodeGUID

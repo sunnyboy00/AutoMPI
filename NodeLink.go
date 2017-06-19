@@ -45,6 +45,7 @@ func CreateNodelinkOutgoingConnection(LocalAddress string, RemoteAddress string,
 	base.ConnectionEstablishedAt = time.Now()
 	var err error
 
+	rand.Seed(time.Now().UnixNano())
 	port := rand.Intn(65534-49152) + 49152
 
 	base.LocalAddress, err = net.ResolveTCPAddr("tcp", LocalAddress+":"+strconv.Itoa(port))
@@ -62,10 +63,16 @@ func CreateNodelinkOutgoingConnection(LocalAddress string, RemoteAddress string,
 
 	base.Connection, err = net.DialTCP("tcp", base.LocalAddress, base.RemoteAddress)
 	if err != nil {
-		println("DialTCP failed: ", LocalAddress+":"+strconv.Itoa(port), RemoteAddress, err)
+		fmt.Printf("net.DialTCP failed. Local Address: %s:%s Remote Address: %s ", LocalAddress, strconv.Itoa(port), RemoteAddress)
+		fmt.Printf("Error: %s\n", err)
 	}
 
-	_, err = base.Connection.Write([]byte(base.GUIDSource))
+	GUIDSourceInBytes := []byte(base.GUIDSource)
+	GUIDSourceInBytesLength := make([]byte, 4)
+	binary.LittleEndian.PutUint32(GUIDSourceInBytesLength, (uint32)(len(GUIDSourceInBytes)))
+	_, err = base.Connection.Write(GUIDSourceInBytesLength)
+	_, err = base.Connection.Write(GUIDSourceInBytes)
+
 	if err != nil {
 		println("Write GUIDSource failed: ", err)
 	}
@@ -105,7 +112,11 @@ func CreateNodelinkReceiveIncomingConnection(Connection net.Conn, MyGUID string,
 	base.GUIDSource, result = base.readString()
 	base.TheirGUID = base.GUIDSource
 
-	_, err = base.Connection.Write([]byte(base.GUIDDestination))
+	GUIDDestinationInBytes := []byte(base.GUIDDestination)
+	GUIDDestinationInBytesLength := make([]byte, 4)
+	binary.LittleEndian.PutUint32(GUIDDestinationInBytesLength, (uint32)(len(GUIDDestinationInBytes)))
+	_, err = base.Connection.Write(GUIDDestinationInBytesLength)
+	_, err = base.Connection.Write(GUIDDestinationInBytes)
 	if err != nil {
 		println("Write GUIDSource failed: ", err)
 	}
@@ -224,11 +235,11 @@ func (base *NodeLink) breakOnFatelError(err error) bool {
 	if err != nil {
 		switch err {
 		case io.ErrUnexpectedEOF:
-			println(" io.ErrUnexpectedEOF", base.MyGUID)
+			// println(" io.ErrUnexpectedEOF", base.MyGUID)
 			base.Close()
 			return true
 		case io.EOF:
-			println("io.EOF", base.MyGUID)
+			// println("io.EOF", base.MyGUID)
 			base.Close()
 			return true
 		case io.ErrNoProgress:
@@ -266,8 +277,20 @@ func (base *NodeLink) Send(Message MapMessage) {
 }
 
 func (base *NodeLink) readString() (string, bool) {
+
+	lengthBuffer := make([]byte, 4)
+	sizeBytesRead, err := base.Connection.Read(lengthBuffer)
+	if base.breakOnFatelError(err) {
+		base.Close()
+	}
+	if sizeBytesRead != 4 {
+		println("Error -> NodeLink sizeBytesRead: ", sizeBytesRead)
+	}
+
+	lengthToRead := int(binary.LittleEndian.Uint32(lengthBuffer))
+
 	var buffer bytes.Buffer
-	var b = make([]byte, bufferSize)
+	var b = make([]byte, lengthToRead)
 
 	readBytes, err := base.Connection.Read(b)
 	if err != nil {
