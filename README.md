@@ -127,6 +127,6 @@ Messages are checked(and passed) in this order when received by a node
 
 ## NodeStateHTTPHandler
 
-Can be fund by pointing your web browser to the bound IP address and port 8800 eg: http://192.168.1.20:8800/
+Can be found by pointing your web browser to the bound IP address and port 8800 eg: http://192.168.1.20:8800/
 
 ![alt text](HttpNodeState.png)
