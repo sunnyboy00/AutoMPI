@@ -42,6 +42,7 @@ func (base *Node) workerProcessMessagesLoop() {
 func (base *Node) AttachWorker(worker IWorker) {
 	if worker != nil {
 		worker.AttachSendMethod(base.Send)
+		worker.AttachParentNode(base)
 		base.workerLock.Lock()
 		base.Workers[worker.GetGUID()] = worker
 		base.workerLock.Unlock()
@@ -120,5 +121,13 @@ func (base *Node) getHostingNodeOfWorkerBySearchingCollections(WorkerGUID string
 		return workerLocation.parentNodeGUID, true
 	}
 	return "", false
+
+}
+
+// IsThisAKnownWorkerBySearchingCollections as the method says
+func (base *Node) IsThisAKnownWorkerBySearchingCollections(WorkerGUID string) bool {
+	_, IsKnown := base.allWorkersLocation[WorkerGUID]
+
+	return IsKnown
 
 }

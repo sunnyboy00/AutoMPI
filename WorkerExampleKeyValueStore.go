@@ -12,6 +12,7 @@ type WorkerExampleKeyValueStore struct {
 	CreatedAt          time.Time
 	MessageList        []MapMessage
 	Send               func(MapMessage)
+	parent             *Node
 	LastDidWork        time.Time
 	DataStored         map[string][]byte
 	parentNodesMethods map[string]func(interface{}) interface{}
@@ -107,4 +108,9 @@ func (base *WorkerExampleKeyValueStore) QueueMessage(Message MapMessage) {
 // Close the Worker
 func (base *WorkerExampleKeyValueStore) Close() {
 	fmt.Println(base.GUID, " - Worker Closed")
+}
+
+// AttachParentNode attaches the parent to this node
+func (base *WorkerExampleKeyValueStore) AttachParentNode(parent *Node) {
+	base.parent = parent
 }

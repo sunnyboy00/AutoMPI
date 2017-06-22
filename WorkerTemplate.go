@@ -12,6 +12,7 @@ type WorkerTemplate struct {
 	CreatedAt          time.Time
 	MessageList        []MapMessage
 	Send               func(MapMessage)
+	parent             *Node
 	LastDidWork        time.Time
 	parentNodesMethods map[string]func(interface{}) interface{}
 }
@@ -26,6 +27,28 @@ func CreateWorkerTemplate(workerGUID string) IWorker {
 	worker.parentNodesMethods = make(map[string]func(interface{}) interface{})
 	return worker
 }
+
+// ProcessMessages process all messages for this worker
+func (base *WorkerTemplate) ProcessMessages() {
+	for len(base.MessageList) > 0 {
+		Message := base.MessageList[0]
+		base.MessageList = base.MessageList[1:]
+		Message.DestinationGUID = ""
+		// Process Message
+	}
+}
+
+// DoWork do the work of the worker
+func (base *WorkerTemplate) DoWork() {
+
+	time.Sleep(50 * time.Millisecond)
+}
+
+/*
+*
+*			Standard methods below here
+*
+ */
 
 // GetGUID of the worker
 func (base WorkerTemplate) GetGUID() string {
@@ -58,23 +81,12 @@ func (base *WorkerTemplate) QueueMessage(Message MapMessage) {
 	base.MessageList = append(base.MessageList, Message)
 }
 
-// ProcessMessages process all messages for this worker
-func (base *WorkerTemplate) ProcessMessages() {
-	for len(base.MessageList) > 0 {
-		Message := base.MessageList[0]
-		base.MessageList = base.MessageList[1:]
-		Message.DestinationGUID = ""
-		// Process Message
-	}
-}
-
-// DoWork do the work of the worker
-func (base *WorkerTemplate) DoWork() {
-
-	time.Sleep(50 * time.Millisecond)
-}
-
 // Close the Worker
 func (base *WorkerTemplate) Close() {
 	fmt.Println(base.GUID, " - Worker Closed")
+}
+
+// AttachParentNode attaches the parent to this node
+func (base *WorkerTemplate) AttachParentNode(parent *Node) {
+	base.parent = parent
 }

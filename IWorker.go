@@ -12,6 +12,8 @@ type IWorker interface {
 	AttachSendMethod(func(MapMessage))
 	// AttachNodeMethod attach a nodes.method into the worker to -
 	AttachNodeMethod(string, func(interface{}) interface{})
+	// AttachParent
+	AttachParentNode(*Node)
 	// do work
 	DoWork()
 	// close the worker
