@@ -10,7 +10,7 @@ import (
 type WorkerTemplate struct {
 	GUID               string
 	CreatedAt          time.Time
-	MessageList        []MapMessage
+	MessageList        []*MapMessage
 	Send               func(MapMessage)
 	parent             *Node
 	LastDidWork        time.Time
@@ -23,7 +23,7 @@ func CreateWorkerTemplate(workerGUID string) IWorker {
 	worker.GUID = workerGUID
 	worker.CreatedAt = time.Now()
 	worker.LastDidWork = time.Now()
-	worker.MessageList = make([]MapMessage, 0)
+	worker.MessageList = make([]*MapMessage, 0)
 	worker.parentNodesMethods = make(map[string]func(interface{}) interface{})
 	return worker
 }
@@ -33,15 +33,18 @@ func (base *WorkerTemplate) ProcessMessages() {
 	for len(base.MessageList) > 0 {
 		Message := base.MessageList[0]
 		base.MessageList = base.MessageList[1:]
-		Message.DestinationGUID = ""
-		// Process Message
+		if nil == Message {
+			continue
+		}
+		// Do some work with the Message
 	}
 }
 
 // DoWork do the work of the worker
 func (base *WorkerTemplate) DoWork() {
-
-	time.Sleep(50 * time.Millisecond)
+	if base.LastDidWork.Before(time.Now()) {
+		base.LastDidWork = time.Now().Add(5 /* or some other timespan */ * time.Second)
+	}
 }
 
 /*
@@ -78,7 +81,7 @@ func (base *WorkerTemplate) AttachNodeMethod(functionName string, function func(
 
 // QueueMessage Queue messge for the worker
 func (base *WorkerTemplate) QueueMessage(Message MapMessage) {
-	base.MessageList = append(base.MessageList, Message)
+	base.MessageList = append(base.MessageList, &Message)
 }
 
 // Close the Worker

@@ -37,6 +37,7 @@ type Node struct {
 	localWorkersLocation           map[string]*WorkerLocation
 	localWorkersAnnouncingLocation map[string]int
 	allWorkersLocation             map[string]*WorkerLocation
+	allWorkersLocationLock         sync.RWMutex
 
 	Workers        map[string]IWorker
 	workerLock     sync.RWMutex
