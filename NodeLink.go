@@ -266,6 +266,7 @@ func (base *NodeLink) breakOnFatelError(err error) bool {
 
 // Send data to the oppisate end of the Link
 func (base *NodeLink) Send(Message MapMessage) {
+	defer base.panickController()
 	b := Message.ToBytes()
 	bSize := make([]byte, 4)
 	binary.LittleEndian.PutUint32(bSize, uint32(len(b)))
@@ -305,6 +306,13 @@ func (base *NodeLink) readString() (string, bool) {
 
 	}
 	return "", false
+}
+
+func (base *NodeLink) panickController() {
+	if x := recover(); x != nil {
+		fmt.Printf("run time panic: %v", x)
+		base.Close()
+	}
 }
 
 // Close Close the link

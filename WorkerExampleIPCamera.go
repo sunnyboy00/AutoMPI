@@ -18,6 +18,7 @@ type WorkerExampleIPCamera struct {
 	CreatedAt          time.Time
 	MessageList        []MapMessage
 	Send               func(MapMessage)
+	parent             *Node
 	LastDidWork        time.Time
 	sourceURL          string
 	parentNodesMethods map[string]func(interface{}) interface{}
@@ -105,4 +106,9 @@ func (base *WorkerExampleIPCamera) QueueMessage(Message MapMessage) {
 // Close the Worker
 func (base *WorkerExampleIPCamera) Close() {
 	fmt.Println(base.GUID, " - Worker Closed")
+}
+
+// AttachParentNode attaches the parent to this node
+func (base *WorkerExampleIPCamera) AttachParentNode(parent *Node) {
+	base.parent = parent
 }

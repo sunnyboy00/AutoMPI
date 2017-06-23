@@ -42,6 +42,7 @@ func (base *Node) workerProcessMessagesLoop() {
 func (base *Node) AttachWorker(worker IWorker) {
 	if worker != nil {
 		worker.AttachSendMethod(base.Send)
+		worker.AttachParentNode(base)
 		base.workerLock.Lock()
 		base.Workers[worker.GetGUID()] = worker
 		base.workerLock.Unlock()
@@ -81,7 +82,9 @@ func (base *Node) isALocalWorker(WorkerGUID string) bool {
 }
 
 func (base *Node) processWorkerLocation(Message MapMessage) {
+	base.allWorkersLocationLock.Lock()
 	base.allWorkersLocation[Message.GetValue(SystemMessageDataPartGUIDWorker)] = CreateWorkerLocation(Message.GetValue(SystemMessageDataPartGUIDWorker), Message.GetValue(SystemMessageDataPartGUIDNode))
+	base.allWorkersLocationLock.Unlock()
 }
 
 func (base *Node) announceAllAgentsInLocalAgentsAnnouncing() {
@@ -115,10 +118,21 @@ func (base *Node) announceAllAgentsInLocalAgentsOnce() {
 
 func (base *Node) getHostingNodeOfWorkerBySearchingCollections(WorkerGUID string) (NodeGUID string, IsKnown bool) {
 
+	base.allWorkersLocationLock.RLock()
 	workerLocation, ok := base.allWorkersLocation[WorkerGUID]
+	base.allWorkersLocationLock.RUnlock()
 	if ok {
 		return workerLocation.parentNodeGUID, true
 	}
 	return "", false
+
+}
+
+// IsThisAKnownWorkerBySearchingCollections as the method says
+func (base *Node) IsThisAKnownWorkerBySearchingCollections(WorkerGUID string) bool {
+	base.allWorkersLocationLock.RLock()
+	_, IsKnown := base.allWorkersLocation[WorkerGUID]
+	base.allWorkersLocationLock.RUnlock()
+	return IsKnown
 
 }

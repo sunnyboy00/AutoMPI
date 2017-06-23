@@ -23,7 +23,7 @@ func (base *Node) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	runtime.ReadMemStats(&m)
 	//log.Printf("\nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\n\n", m.Alloc/1024, m.TotalAlloc/1024, m.Sys/1024, m.NumGC)
 
-	fmt.Fprintf(w, "<!DOCTYPE html><html><head><title>AutiMPI Node: %s</title><meta http-equiv=\"refresh\" content=\"5\"><style>body {font-family: monospace;}</style></head><body></br>\n", base.GUID)
+	fmt.Fprintf(w, "<!DOCTYPE html><html><head><title>AutoMPI Node: %s</title><meta http-equiv=\"refresh\" content=\"5\"><style>body {font-family: monospace;}</style></head><body></br>\n", base.GUID)
 
 	fmt.Fprintf(w, "*****************************   AutoMPI   *****************************</br>\n")
 	fmt.Fprintf(w, "</br>\n")
