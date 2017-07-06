@@ -142,7 +142,9 @@ func (base *Node) messageHandler(Message MapMessage) {
 		}
 	case base.isALocalWorker(Message.DestinationGUID):
 		{
+			base.workerLock.RLock()
 			base.Workers[Message.DestinationGUID].QueueMessage(Message)
+			base.workerLock.RUnlock()
 		}
 		break
 	case Message.DestinationGUID == DestinationAllWorkers:
