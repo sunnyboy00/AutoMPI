@@ -47,11 +47,11 @@ func (base *WorkerTemplate) DoWork() {
 	}
 }
 
-/*
+/********************************************************
 *
 *			Standard methods below here
 *
- */
+********************************************************/
 
 // GetGUID of the worker
 func (base WorkerTemplate) GetGUID() string {
@@ -67,6 +67,12 @@ func (base *WorkerTemplate) getDeltaTime() int64 {
 	DeltaTime := time.Now().Sub(base.LastDidWork).Nanoseconds()
 	base.LastDidWork = time.Now()
 	return DeltaTime
+}
+
+// AttachParentNode attaches the parent to this node
+// this enables calling of the parent nodes exported methods
+func (base *WorkerTemplate) AttachParentNode(parent *Node) {
+	base.parent = parent
 }
 
 // AttachSendMethod of the
@@ -87,9 +93,4 @@ func (base *WorkerTemplate) QueueMessage(Message MapMessage) {
 // Close the Worker
 func (base *WorkerTemplate) Close() {
 	fmt.Println(base.GUID, " - Worker Closed")
-}
-
-// AttachParentNode attaches the parent to this node
-func (base *WorkerTemplate) AttachParentNode(parent *Node) {
-	base.parent = parent
 }

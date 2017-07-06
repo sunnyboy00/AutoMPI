@@ -77,7 +77,9 @@ func (base *Node) removeLocalWorkerLocation(WorkerGUID string) {
 	}
 }
 func (base *Node) isALocalWorker(WorkerGUID string) bool {
+	base.workerLock.RLock()
 	_, ok := base.localWorkersLocation[WorkerGUID]
+	base.workerLock.RUnlock()
 	return ok
 }
 
